@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academia Access</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* General Setup */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body {
+            background-color: #0d1117; /* Dark charcoal/blue background */
+            color: #e6edf3; /* Light text */
+        }
+        
+        /* --- CSS Tabs Structure --- */
+        /* 1. Hide the actual radio buttons used for state tracking */
+        .tab-input { display: none; }
+        
+        /* Header & Navigation */
+        header {
+            background: linear-gradient(90deg, #0d1117, #1f2730, #0d1117);
+            color: #ffcc00; /* Gold/Amber accent */
+            padding: 20px;
+            display: flex;
+            flex-wrap: wrap; /* Allow wrapping on small screens */
+            align-items: center;
+            justify-content: space-around;
+            border-bottom: 3px solid #ffcc00;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            
+            /* ADDED: Makes the header sticky */
+            position: sticky;
+            top: 0;
+            z-index: 1000; /* Ensures header stays on top of other content */
+        }
+        header .logos {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 10px;
+        }
+        header .logos > div { text-align: center; font-size: 0.75em; }
+        header img {
+            height: 45px; /* Slightly smaller logo */
+            width: 45px;
+            border-radius: 50%;
+            background: #1f2730;
+            border: 2px solid #ffcc00;
+            object-fit: cover;
+        }
+        nav { margin-top: 10px; }
+        
+        /* 2. Style the labels (which now replace the <a> tags) */
+        nav label {
+            color: #ffcc00;
+            text-decoration: none;
+            margin: 0 10px;
+            padding: 10px 15px; /* Increased padding for better touch target */
+            font-weight: 500;
+            transition: color 0.3s, border-bottom 0.3s;
+            cursor: pointer;
+            display: inline-block;
+        }
+        nav label:hover {
+            color: #fff;
+            text-shadow: 0 0 5px rgba(255, 204, 0, 0.7);
+        }
+        
+        /* Highlight the active tab */
+        #tab-home:checked ~ header nav label[for="tab-home"],
+        #tab-about:checked ~ header nav label[for="tab-about"],
+        #tab-papers:checked ~ header nav label[for="tab-papers"] {
+            color: #fff;
+            border-bottom: 2px solid #fff;
+            font-weight: 700;
+        }
+        
+        /* Section Styling */
+        section {
+            padding: 40px 20px;
+            text-align: center;
+            /* 3. Hide all sections by default using CSS */
+            display: none;
+        }
+        
+        /* 4. Show the specific section when its corresponding radio button is checked using the general sibling selector (~) */
+        #tab-home:checked ~ #home { display: block; }
+        #tab-about:checked ~ #about { display: block; }
+        #tab-papers:checked ~ #papers { display: block; }
+        
+        #home h1 {
+            font-size: clamp(2em, 5vw, 3.5em);
+            color: #ffcc00;
+            margin-bottom: 10px;
+            text-shadow: 0 0 5px rgba(255, 204, 0, 0.5);
+        }
+        #home p { color: #b0c0d0; max-width: 800px; margin: 0 auto; }
+        
+        /* Form Layout - Responsive Search Filters */
+        #papers > .filter-group {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            max-width: 1000px;
+            margin: 10px auto;
+        }
+
+        /* Form Elements - Ensure good touch target size and styling */
+        input, select, button {
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid #30363d;
+            background-color: #161b22;
+            color: #e6edf3;
+            flex: 1 1 200px; /* Flexible width */
+            max-width: 280px;
+            min-width: 150px;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+        input::placeholder { color: #6a737d; }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #ffcc00;
+            background-color: #0d1117;
+        }
+
+        button {
+            background-color: #ffcc00;
+            color: #0d1117;
+            cursor: pointer;
+            font-weight: 700;
+            flex-grow: 1;
+            max-width: 200px; /* Limit button width */
+            transition: background-color 0.2s, transform 0.1s;
+        }
+        button:hover {
+            background-color: #fff;
+            transform: translateY(-1px);
+        }
+        
+        /* Paper List Display */
+        .paper-list {
+            margin-top: 30px;
+            max-width: 1000px;
+            margin-left: auto;
+            margin-right: auto;
+            text-align: left;
+        }
+        .paper-list > div {
+            background-color: #161b22;
+            padding: 15px 20px;
+            margin-bottom: 12px;
+            border-radius: 10px;
+            border-left: 5px solid #ffcc00;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s;
+        }
+        .paper-list > div:hover {
+            transform: translateY(-2px);
+            background-color: #1f2730;
+        }
+        .paper-list strong {
+            font-size: 1.15em;
+            color: #fff;
+            display: block; /* Ensures title is on its own line */
+            margin-bottom: 5px;
+        }
+        .paper-info {
+            color: #959da5;
+            font-size: 0.9em;
+            line-height: 1.5;
+        }
+        .paper-link { margin-top: 5px; }
+
+        /* Footer */
+        footer {
+            background-color: #161b22;
+            color: #6a737d;
+            padding: 15px;
+            text-align: center;
+            border-top: 1px solid #30363d;
+            font-size: 0.85em;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 600px) {
+            header { justify-content: center; text-align: center; }
+            header .logos { flex-direction: column; gap: 5px; }
+            nav { order: 10; width: 100%; margin-top: 15px; }
+            nav label { margin: 0 5px; display: inline-block; font-size: 0.9em; padding: 8px 10px; }
+            #papers > .filter-group { flex-direction: column; align-items: center; }
+            input, select, button { max-width: 90%; min-width: unset; width: 90%; }
+            section { padding: 20px 10px; }
+        }
+    </style>
+</head>
+<body>
+    
+    <input type="radio" name="tabs" id="tab-home" class="tab-input" checked>
+    <input type="radio" name="tabs" id="tab-about" class="tab-input">
+    <input type="radio" name="tabs" id="tab-papers" class="tab-input">
+
+    <header>
+        <div class="logos">
+            <div>
+                <img src="parent_logo.jpg" onerror="this.src='https://placehold.co/45x45/0d1117/ffcc00?text=O'" alt="Parent Company Logo">
+                <p>Parent: Oberoi Group of Companies</p>
+            </div>
+            <div>
+                <img src="main_logo.jpg" onerror="this.src='https://placehold.co/45x45/0d1117/ffcc00?text=AA'" alt="Academia Access Logo">
+                <p>Main: Academia Access</p>
+            </div>
+        </div>
+        <nav>
+            <label for="tab-home">Home</label>
+            <label for="tab-about">About</label>
+            <label for="tab-papers">Papers</label>
+        </nav>
+    </header>
+
+    <section id="home">
+        <h1>Welcome to Academia Access</h1>
+        <p>A proud initiative under the Oberoi Group of Companies. Our mission is to provide free access to quality educational resources—Question Papers, Sample Papers, Olympiad Papers and Holiday Homework—for students across schools and colleges.</p>
+    </section>
+
+    <section id="about">
+        <h2>About Academia Access</h2>
+        <p style="margin-top: 15px;"><strong>Founder:</strong> Aarush Oberoi</p>
+        <p><strong>Mission:</strong> To make academic excellence accessible to every student by offering free and high-quality study materials.</p>
+    </section>
+    
+    <section id="papers">
+        <h2>Browse Papers</h2>
+        
+        <div class="filter-group">
+            <input type="text" id="searchTitle" placeholder="Search by title..." onkeyup="searchPapers()">
+            <input type="text" id="searchSubject" placeholder="Search by Subject (e.g., Physics)" onkeyup="searchPapers()">
+        </div>
+
+        <div class="filter-group">
+            <input type="text" id="searchSchool" placeholder="Search by Source (e.g., NTA, CBSE)" onkeyup="searchPapers()">
+            <input type="text" id="searchYear" placeholder="Search by year (e.g., 2024)" onkeyup="searchPapers()">
+        </div>
+
+        <div class="filter-group">
+            <select id="institutionType" onchange="toggleGradeYear(); searchPapers()">
+                <option value="">Select School/College/Exam Type</option>
+                <option value="school">School</option>
+                <option value="college">College</option>
+                <option value="olympiad">Olympiads</option>
+                <option value="admissions">College Admissions</option>
+            </select>
+
+            <select id="olympiadType" style="display:none;" onchange="searchPapers()">
+                <option value="">Select Olympiad Name</option>
+                <option value="ACG">ACG (Āryabhaṭa Ganit Challenge)</option>
+                <option value="SOF">SOF IMO (International Mathematics Olympiad)</option>
+                <option value="CREST">CMO (CREST Mathematics Olympiad)</option>
+                <option value="SilverZone">iOS (International Olympiad of Science)</option>
+                <option value="Unified Council">NSTSE (National Level Science Talent Search Examination)</option>
+                <option value="Unified Council">UIMO (Unified International Mathematics Olympiad)</option>
+                <option value="CREST">CEO (CREST English Olympiad)</option>
+                <option value="SOF">SOF IEO (International English Olympiad)</option>
+            </select>
+            
+            <select id="admissionType" style="display:none;" onchange="searchPapers()">
+                <option value="">Select Exam Name</option>
+            </select>
+            
+            <select id="gradeYear" style="display:none;" onchange="searchPapers()">
+                <option value="">Select Grade/Year</option>
+                <optgroup label="School Grades" id="schoolGrades">
+                    <option value="5">Grade 5</option>
+                    <option value="6">Grade 6</option>
+                    <option value="7">Grade 7</option>
+                    <option value="8">Grade 8</option>
+                    <option value="9">Grade 9</option>
+                    <option value="10">Grade 10</option>
+                    <option value="11">Grade 11</option>
+                    <option value="12">Grade 12</option>
+                </optgroup>
+                <optgroup label="College Years" id="collegeYears" style="display:none;">
+                    <option value="1">College Year 1</option>
+                    <option value="2">College Year 2</option>
+                    <option value="3">College Year 3</option>
+                    <option value="4">College Year 4</option>
+                </optgroup>
+            </select>
+
+            <select id="paperType" onchange="searchPapers()">
+                <option value="">Select Paper Type</option>
+                <option value="question">Question Paper</option>
+                <option value="sample">Sample Paper</option>
+                <option value="holiday">Holiday Homework</option>
+            </select>
+            <button onclick="searchPapers()">Filter Results</button>
+        </div>
+
+        <div class="paper-list" id="paperList">
+        </div>
+        
+    </section>
+
+    <footer>
+        <p>&copy; 2025 Academia Access | Part of the Oberoi Group of Companies</p>
+    </footer>
+
+    <script>
+        let papers = [
+            { title: 'SOF | IMO | Year-2015 | Level-2 ', subject: 'Mathematics', type: 'olympiad', year: '2015', schoolName: 'SOF (Science Olympiad Foundation)', grade: '9', olympiad: 'SOF', admissionTest: '', pdfUrl: '31.pdf' },
+
+            { title: 'SOF | IEO | Year-2022 | Set-A ', subject: 'English', type: 'olympiad', year: '2022', schoolName: 'SOF (Science Olympiad Foundation)', grade: '8', olympiad: 'SOF', admissionTest: '', pdfUrl: '50.pdf' },
+            { title: 'SOF | IEO | Year-2018 | Set-B ', subject: 'English', type: 'olympiad', year: '2018', schoolName: 'SOF (Science Olympiad Foundation)', grade: '8', olympiad: 'SOF', admissionTest: '', pdfUrl: '48.pdf' },
+            { title: 'SOF | IEO | Year-2017 | Set-A ', subject: 'English', type: 'olympiad', year: '2017', schoolName: 'SOF (Science Olympiad Foundation)', grade: '8', olympiad: 'SOF', admissionTest: '', pdfUrl: '47.pdf' },
+            { title: 'CREST Olympiads | CEO | Year-2023 | Set-A ', subject: 'English', type: 'olympiad', year: '2023', schoolName: 'CREST Olympiads (Centre for Research and Exams in Science and Technology)', grade: '8', olympiad: 'CREST', admissionTest: '', pdfUrl: '46.pdf' },
+            { title: 'SOF | IMO | Year-2019 | Set-B ', subject: 'Mathematics', type: 'olympiad', year: '2019', schoolName: 'SOF (Science Olympiad Foundation)', grade: '8', olympiad: 'SOF', admissionTest: '', pdfUrl: '30.pdf' },
+            { title: 'SOF | IMO | Year-2019 | Set-A ', subject: 'Mathematics', type: 'olympiad', year: '2019', schoolName: 'SOF (Science Olympiad Foundation)', grade: '8', olympiad: 'SOF', admissionTest: '', pdfUrl: '29.pdf' },        
+            { title: 'SOF | IMO | Year-2018 | Set-B ', subject: 'Mathematics', type: 'olympiad', year: '2018', schoolName: 'SOF (Science Olympiad Foundation)', grade: '8', olympiad: 'SOF', admissionTest: '', pdfUrl: '28.pdf' },        
+            { title: 'SOF | IMO | Year-2018 | Set-A ', subject: 'Mathematics', type: 'olympiad', year: '2018', schoolName: 'SOF (Science Olympiad Foundation)', grade: '8', olympiad: 'SOF', admissionTest: '', pdfUrl: '27.pdf' },
+            { title: 'SOF | IMO | Year-2017 | Set-B ', subject: 'Mathematics', type: 'olympiad', year: '2017', schoolName: 'SOF (Science Olympiad Foundation)', grade: '8', olympiad: 'SOF', admissionTest: '', pdfUrl: '26.pdf' },
+            { title: 'ACG (Āryabhaṭa Ganit Challenge) | Stage-1', subject: 'Mathematics', type: 'olympiad', year: '2024', schoolName: 'CBSE', grade: '8', olympiad: 'ACG', admissionTest: '', pdfUrl: '25.pdf' },   
+            { title: 'Holiday Homework', subject: 'Social Science', type: 'holiday', year: '2025', schoolName: 'Indraprastha World School', grade: '8', olympiad: '', admissionTest: '', pdfUrl: '24.pdf' },       
+            { title: 'Holiday Homework', subject: 'Science', type: 'holiday', year: '2025', schoolName: 'Indraprastha World School', grade: '8', olympiad: '', admissionTest: '', pdfUrl: '23.pdf' },        
+            { title: 'Holiday Homework', subject: 'Mathematics', type: 'holiday', year: '2025', schoolName: 'Indraprastha World School', grade: '8', olympiad: '', admissionTest: '', pdfUrl: '22.pdf' },       
+            { title: 'Holiday Homework', subject: 'Hindi', type: 'holiday', year: '2025', schoolName: 'Indraprastha World School', grade: '8', olympiad: '', admissionTest: '', pdfUrl: '21.pdf' },        
+            { title: 'Holiday Homework', subject: 'French', type: 'holiday', year: '2025', schoolName: 'Indraprastha World School', grade: '8', olympiad: '', admissionTest: '', pdfUrl: '20.pdf' },        
+            { title: 'Holiday Homework', subject: 'English', type: 'holiday', year: '2025', schoolName: 'Indraprastha World School', grade: '8', olympiad: '', admissionTest: '', pdfUrl: '19.pdf' },       
+            { title: 'Sample Paper | Mid Term', subject: 'Social Science', type: 'sample', year: '2025', schoolName: 'Indraprastha World School', grade: '8', olympiad: '', admissionTest: '', pdfUrl: '18.pdf' },       
+            { title: 'Sample Paper | Mid Term', subject: 'Science', type: 'sample', year: '2025', schoolName: 'Indraprastha World School', grade: '8', olympiad: '', admissionTest: '', pdfUrl: '17.pdf' },
+            { title: 'Sample Paper | Mid Term', subject: 'Mathematics', type: 'sample', year: '2025', schoolName: 'Indraprastha World School', grade: '8', olympiad: '', admissionTest: '', pdfUrl: '16.pdf' },
+            { title: 'Sample Paper | Mid Term', subject: 'Hindi', type: 'sample', year: '2025', schoolName: 'Indraprastha World School', grade: '8', olympiad: '', admissionTest: '', pdfUrl: '15.pdf' },
+            { title: 'Question Paper | Mid Term', subject: 'French', type: 'question', year: '2025', schoolName: 'Delhi Public School, Rohini', grade: '8', olympiad: '', admissionTest: '', pdfUrl: '14.pdf' },
+            { title: 'Sample Paper | Mid Term', subject: 'French', type: 'sample', year: '2025', schoolName: 'Indraprastha World School', grade: '8', olympiad: '', admissionTest: '', pdfUrl: '13.pdf' },
+            { title: 'Sample Paper | Mid Term', subject: 'English', type: 'sample', year: '2025', schoolName: 'Indraprastha World School', grade: '8', olympiad: '', admissionTest: '', pdfUrl: '12.pdf' },
+            
+            { title: 'CREST Olympiads | CEO | Year-2023 | Set-A ', subject: 'Mathematics', type: 'olympiad', year: '2023', schoolName: 'CREST Olympiads (Centre for Research and Exams in Science and Technology)', grade: '7', olympiad: 'CREST', admissionTest: '', pdfUrl: '49.pdf' },
+            { title: 'SOF | IMO | Year-2019 | Set-B ', subject: 'Mathematics', type: 'olympiad', year: '2019', schoolName: 'SOF (Science Olympiad Foundation)', grade: '7', olympiad: 'SOF', admissionTest: '', pdfUrl: '34.pdf' },
+            { title: 'SOF | IMO | Year-2019 | Set-A ', subject: 'Mathematics', type: 'olympiad', year: '2019', schoolName: 'SOF (Science Olympiad Foundation)', grade: '7', olympiad: 'SOF', admissionTest: '', pdfUrl: '33.pdf' },
+            { title: 'CREST Olympiads | CMO | Year-2022 | Set-A ', subject: 'Mathematics', type: 'olympiad', year: '2022', schoolName: 'CREST Olympiads (Centre for Research and Exams in Science and Technology)', grade: '7', olympiad: 'CREST', admissionTest: '', pdfUrl: '32.pdf' },
+            { title: 'Sample Paper | Mid Term', subject: 'Social Science', type: 'sample', year: '2024', schoolName: 'Indraprastha World School', grade: '7', olympiad: '', admissionTest: '', pdfUrl: '11.pdf' },
+            { title: 'Sample Paper | Mid Term', subject: 'Mathematics', type: 'sample', year: '2024', schoolName: 'Indraprastha World School', grade: '7', olympiad: '', admissionTest: '', pdfUrl: '10.pdf' },
+            { title: 'Sample Paper | Mid Term', subject: 'Hindi', type: 'sample', year: '2024', schoolName: 'Indraprastha World School', grade: '7', olympiad: '', admissionTest: '', pdfUrl: '9.pdf' },
+            { title: 'Sample Paper | Mid Term', subject: 'French', type: 'sample', year: '2024', schoolName: 'Indraprastha World School', grade: '7', olympiad: '', admissionTest: '', pdfUrl: '8.pdf' },
+            { title: 'Sample Paper | Mid Term', subject: 'English', type: 'sample', year: '2024', schoolName: 'Indraprastha World School', grade: '7', olympiad: '', admissionTest: '', pdfUrl: '7.pdf' },
+            
+            { title: 'SilverZone Foundation | iOS | Year-2014 | Level-2 ', subject: 'Science', type: 'olympiad', year: '2014', schoolName: 'SilverZone Foundation', grade: '6', olympiad: 'SilverZone', admissionTest: '', pdfUrl: '35.pdf' },
+            { title: 'SilverZone Foundation | iOS | Year-2015 | Level-2 ', subject: 'Science', type: 'olympiad', year: '2015', schoolName: 'SilverZone Foundation', grade: '6', olympiad: 'SilverZone', admissionTest: '', pdfUrl: '36.pdf' },
+            { title: 'SilverZone Foundation | iOS | Year-2016 | Level-2 ', subject: 'Science', type: 'olympiad', year: '2016', schoolName: 'SilverZone Foundation', grade: '6', olympiad: 'SilverZone', admissionTest: '', pdfUrl: '37.pdf' },
+            { title: 'SilverZone Foundation | iOS | Year-2017 | Level-2 ', subject: 'Science', type: 'olympiad', year: '2017', schoolName: 'SilverZone Foundation', grade: '6', olympiad: 'SilverZone', admissionTest: '', pdfUrl: '38.pdf' },
+            { title: 'SilverZone Foundation | iOS | Year-2018 | Level-2 ', subject: 'Science', type: 'olympiad', year: '2018', schoolName: 'SilverZone Foundation', grade: '6', olympiad: 'SilverZone', admissionTest: '', pdfUrl: '39.pdf' },
+            { title: 'SilverZone Foundation | iOS | Year-2019 | Level-2 ', subject: 'Science', type: 'olympiad', year: '2019', schoolName: 'SilverZone Foundation', grade: '6', olympiad: 'SilverZone', admissionTest: '', pdfUrl: '40.pdf' },
+            { title: 'SilverZone Foundation | iOS | Year-2022 | Level-2 ', subject: 'Science', type: 'olympiad', year: '2022', schoolName: 'SilverZone Foundation', grade: '6', olympiad: 'SilverZone', admissionTest: '', pdfUrl: '41.pdf' },
+            { title: 'Unified Council | NSTSE | Year-2023 | Sample Paper ', subject: 'Science', type: 'olympiad', year: '2023', schoolName: 'Unified Council', grade: '6', olympiad: 'Unified Council', admissionTest: '', pdfUrl: '42.pdf' },
+            { title: 'Unified Council | NSTSE | Year-2023 | Sample Paper ', subject: 'Science', type: 'olympiad', year: '2023', schoolName: 'Unified Council', grade: '6', olympiad: 'Unified Council', admissionTest: '', pdfUrl: '43.pdf' },
+            { title: 'Unified Council | UIMO | Year-2023 | Sample Paper ', subject: 'Mathematics', type: 'olympiad', year: '2023', schoolName: 'Unified Council', grade: '6', olympiad: 'Unified Council', admissionTest: '', pdfUrl: '44.pdf' },
+            { title: 'Unified Council | UIMO | Year-2023 | Sample Paper ', subject: 'Mathematics', type: 'olympiad', year: '2023', schoolName: 'Unified Council', grade: '6', olympiad: 'Unified Council', admissionTest: '', pdfUrl: '45.pdf' },
+            { title: 'Sample Paper | Mid Term', subject: 'Social Science', type: 'sample', year: '2023', schoolName: 'Indraprastha World School', grade: '6', olympiad: '', admissionTest: '', pdfUrl: '6.pdf' },
+            { title: 'Sample Paper | Mid Term', subject: 'Science', type: 'sample', year: '2023', schoolName: 'Indraprastha World School', grade: '6', olympiad: '', admissionTest: '', pdfUrl: '5.pdf' },
+            { title: 'Sample Paper | Mid Term', subject: 'Mathematics', type: 'sample', year: '2023', schoolName: 'Indraprastha World School', grade: '6', olympiad: '', admissionTest: '', pdfUrl: '4.pdf' },
+            { title: 'Sample Paper | Mid Term', subject: 'Hindi', type: 'sample', year: '2023', schoolName: 'Indraprastha World School', grade: '6', olympiad: '', admissionTest: '', pdfUrl: '3.pdf' },
+            { title: 'Sample Paper | Mid Term', subject: 'French', type: 'sample', year: '2023', schoolName: 'Indraprastha World School', grade: '6', olympiad: '', admissionTest: '', pdfUrl: '2.pdf' },
+            { title: 'Sample Paper | Mid Term', subject: 'English', type: 'sample', year: '2023', schoolName: 'Indraprastha World School', grade: '6', olympiad: '', admissionTest: '', pdfUrl: '1.pdf' },
+        ];
+
+        // Helper function to convert paper type code to a full string name
+        function getFullTypeName(type) {
+            const typeMap = {
+                'question': 'Question Paper',
+                'sample': 'Sample Paper',
+                'olympiad': 'Olympiad Paper',
+                'admissions': 'Admission Test',
+                'holiday': 'Holiday Homework',
+            };
+            return typeMap[type.toLowerCase()] || type;
+        }
+
+        // Helper function to convert numeric grade/year to a full string name for display
+        function getFullGradeYear(grade) {
+            if (!grade) return '';
+            const gradeNum = parseInt(grade);
+            if (gradeNum >= 5 && gradeNum <= 12) {
+                return `Grade ${gradeNum}`;
+            }
+            if (gradeNum >= 1 && gradeNum <= 4) {
+                return `College Year ${gradeNum}`;
+            }
+            return '';  
+        }
+
+        // Function to set default view on load
+        window.onload = function() {
+            searchPapers(); 
+        };
+        
+        // Function to toggle the visibility of specific filter options
+        function toggleGradeYear() {
+            const institution = document.getElementById('institutionType').value;
+            const gradeYear = document.getElementById('gradeYear');
+            const paperTypeSelect = document.getElementById('paperType');
+            const olympiadTypeSelect = document.getElementById('olympiadType');
+            const admissionTypeSelect = document.getElementById('admissionType'); 
+            const schoolGrades = document.getElementById('schoolGrades');
+            const collegeYears = document.getElementById('collegeYears');
+
+            // Reset visibility
+            gradeYear.style.display = 'none';
+            paperTypeSelect.style.display = 'none';
+            olympiadTypeSelect.style.display = 'none';
+            admissionTypeSelect.style.display = 'none';
+            
+            // Also reset selected specific exam types to prevent accidental cross-filtering
+            olympiadTypeSelect.value = ""; 
+            admissionTypeSelect.value = "";
+
+            if (institution === 'school' || institution === 'college') {
+                gradeYear.style.display = 'inline-block';
+                paperTypeSelect.style.display = 'inline-block';
+                
+                if (institution === 'school') {
+                    schoolGrades.style.display = 'block';
+                    collegeYears.style.display = 'none';
+                } else { // college
+                    schoolGrades.style.display = 'none';
+                    collegeYears.style.display = 'block';
+                }
+            } else if (institution === 'olympiad') {
+                olympiadTypeSelect.style.display = 'inline-block';
+                gradeYear.style.display = 'inline-block'; // Olympiads are often grade-specific
+                paperTypeSelect.style.display = 'none'; // Paper type is implicitly 'olympiad'
+                schoolGrades.style.display = 'block';
+                collegeYears.style.display = 'none';
+            } else if (institution === 'admissions') {
+                admissionTypeSelect.style.display = 'inline-block';
+                gradeYear.style.display = 'inline-block';
+                paperTypeSelect.style.display = 'none'; // Paper type is implicitly 'admissions'
+                schoolGrades.style.display = 'block';
+                collegeYears.style.display = 'none';
+            } else if (institution === '') {
+                // If Institution Type is cleared, show general paper types
+                paperTypeSelect.style.display = 'inline-block';
+            }
+        }
+
+        // Function to filter and display papers
+        function searchPapers() {
+            // Get filter values from all input fields
+            const title = document.getElementById('searchTitle').value.toLowerCase();
+            const subject = document.getElementById('searchSubject').value.toLowerCase();
+            const school = document.getElementById('searchSchool').value.toLowerCase();
+            const year = document.getElementById('searchYear').value;
+            const institutionType = document.getElementById('institutionType').value;
+            
+            // Only use paperType if InstitutionType is not set (i.e., general search)
+            const generalPaperType = document.getElementById('paperType').value; 
+            
+            const gradeYear = document.getElementById('gradeYear').value;
+            const selectedOlympiad = document.getElementById('olympiadType').value;
+            const selectedAdmissionTest = document.getElementById('admissionType').value;
+            
+            const list = document.getElementById('paperList');
+            list.innerHTML = ''; // Clear previous results
+
+            const filtered = papers.filter(p => {
+                const pType = p.type.toLowerCase();
+                const gradeNum = parseInt(p.grade);
+
+                // --- Condition 1: Basic text and year filters ---
+                const titleMatch = !title || p.title.toLowerCase().includes(title);
+                const subjectMatch = !subject || p.subject.toLowerCase().includes(subject);
+                const schoolMatch = !school || p.schoolName.toLowerCase().includes(school);
+                const yearMatch = !year || p.year === year;
+                
+                // --- Condition 2: Grade/Year filter ---
+                const gradeMatch = !gradeYear || p.grade === gradeYear;
+
+                // --- Condition 3 & 4: Specific institution type category filter (Updated) ---
+                let institutionMatch = true; 
+                let paperTypeMatch = true;
+
+                if (institutionType) {
+                    if (institutionType === 'school') {
+                        // School filter: must be school grade (5-12) AND NOT an Olympiad/Admission test
+                        institutionMatch = (gradeNum >= 5 && gradeNum <= 12);
+                        paperTypeMatch = (pType === 'question' || pType === 'sample' || pType === 'holiday');
+                    } else if (institutionType === 'college') {
+                        // College filter: must be college year (1-4) AND NOT an Olympiad/Admission test
+                        institutionMatch = (gradeNum >= 1 && gradeNum <= 4);
+                        paperTypeMatch = (pType === 'question' || pType === 'sample' || pType === 'holiday');
+                    } else if (institutionType === 'olympiad') {
+                        // Olympiad filter: must be type 'olympiad' AND optionally match the specific Olympiad name
+                        institutionMatch = (pType === 'olympiad');
+                        const olympiadNameMatch = !selectedOlympiad || p.olympiad === selectedOlympiad;
+                        institutionMatch = institutionMatch && olympiadNameMatch;
+                        paperTypeMatch = true; // Implicitly matching the 'olympiad' type
+                    } else if (institutionType === 'admissions') {
+                        // Admissions filter: must be type 'admissions' AND optionally match the specific test name
+                        institutionMatch = (pType === 'admissions');
+                        const admissionNameMatch = !selectedAdmissionTest || p.admissionTest === selectedAdmissionTest;
+                        institutionMatch = institutionMatch && admissionNameMatch;
+                        paperTypeMatch = true; // Implicitly matching the 'admissions' type
+                    }
+                } else {
+                    // General search: Match the selected general paper type (question/sample/holiday)
+                    paperTypeMatch = !generalPaperType || pType === generalPaperType;
+                }
+                
+                // Final check: A paper is included only if ALL relevant conditions are met
+                return titleMatch && subjectMatch && schoolMatch && yearMatch && gradeMatch && paperTypeMatch && institutionMatch;
+            });
+
+            if (filtered.length === 0) {
+                list.innerHTML = '<p style="text-align: center; color: #ffcc00; margin-top: 20px;">No matching papers found. Try adjusting your filters!</p>';
+            } else {
+                filtered.forEach(p => {
+                    const div = document.createElement('div');
+                        
+                    const displayType = getFullTypeName(p.type);  
+                    const displayGrade = p.grade ? ` | ${getFullGradeYear(p.grade)}` : '';
+                    const examName = p.olympiad ? ` (${p.olympiad})` : (p.admissionTest ? ` (${p.admissionTest})` : '');
+
+                    div.innerHTML = `
+                        <strong>${p.title}</strong>
+                        <div class="paper-info">
+                            Subject: ${p.subject} | Type: ${displayType}${examName} | Source: ${p.schoolName}, Year: ${p.year}${displayGrade}
+                            <span class="paper-link">
+                                <a href="${p.pdfUrl}" target="_blank" style="color: #4a90e2; text-decoration: none; font-weight: 500; margin-left: 15px;">
+                                    View PDF
+                                    <svg style="display:inline-block; vertical-align: middle; margin-left: 5px;" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4a90e2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                                        <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                                    </svg>
+                                </a>
+                            </span>
+                        </div>
+                    `;
+                    list.appendChild(div);
+                });
+            }
+        }
+    </script>
+</body>
+</html>
