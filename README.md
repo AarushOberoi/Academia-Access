@@ -45,4 +45,52 @@ Academia-Access/
 
 ## 🚀 Run Locally
 
-Clone
+Clone the repo and serve the folder with any static server:
+
+```bash
+git clone https://github.com/AarushOberoi/Academia-Access.git
+cd Academia-Access
+
+# Option 1: Python
+python -m http.server 8000
+
+# Option 2: Node
+npx serve .
+```
+
+Then open `http://localhost:8000/Academia%20Access.html`.
+
+## ☁️ Deployment
+
+Deployed as static assets on **Cloudflare Workers**:
+
+```bash
+npx wrangler deploy
+```
+
+## ➕ Adding Papers
+
+1. Add the new PDF to the repository root, using the next number (e.g. `51.pdf`).
+2. Register it in `Academia Access.html` with its category, exam, grade/year and paper type so it shows up in the filters.
+3. Commit and redeploy.
+
+## 🤝 Contributing
+
+Have a paper to share or a fix to suggest?
+
+1. Fork the repository
+2. Create a branch: `git checkout -b add/paper-name`
+3. Commit your changes and open a pull request
+
+Please only contribute materials you have the right to share.
+
+## ⚠️ Disclaimer
+
+Academia Access is an independent educational initiative. Papers are shared for study and practice, and all rights to original exam content remain with the respective organisers and publishers. If you are a rights holder and want something removed, please open an issue.
+
+## 👤 Author
+
+**Aarush Oberoi**, Founder, Academia Access
+Part of the **Oberoi Group of Companies**
+
+© 2025 Academia Access
